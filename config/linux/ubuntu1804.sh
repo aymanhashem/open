@@ -25,15 +25,16 @@ fi
  npm cache clear --force 
  rm -fr node_modules 
  cd ../ 
- chmod 666 openemr/sites/default/sqlconf.php \
- chmod 666 openemr/interface/modules/zend_modules/config/application.config.php \
- chown -R www-data openemr/ \
- mv openemr /var/www/ \
- git clone https://github.com/letsencrypt/letsencrypt /opt/certbot \
- pip install -e /opt/certbot/acme -e /opt/certbot \
- mkdir -p /etc/ssl/certs /etc/ssl/private \
+ chmod 666 openemr/sites/default/sqlconf.php 
+ chmod 666 openemr/interface/modules/zend_modules/config/application.config.php 
+ chown -R www-data openemr/ 
+ mv openemr /var/www/ 
+ git clone https://github.com/letsencrypt/letsencrypt /opt/certbot 
+ pip install -e /opt/certbot/acme -e /opt/certbot 
+ mkdir -p /etc/ssl/certs /etc/ssl/private 
 
  #php.ini
  #openemr.conf
  #run_opneemrsh
 # remove default site in sites-enabled
+# remove /var/www/html*

@@ -29,9 +29,6 @@ fi
  chmod 666 openemr/interface/modules/zend_modules/config/application.config.php 
  chown -R www-data openemr/ 
  mv openemr /var/www/ 
- git clone https://github.com/letsencrypt/letsencrypt /opt/certbot 
- pip install -e /opt/certbot/acme -e /opt/certbot 
- mkdir -p /etc/ssl/certs /etc/ssl/private 
 
  #php.ini
  #openemr.conf
@@ -40,24 +37,33 @@ fi
 # remove /var/www/html*
 
 ### SSL
-
+git clone https://github.com/letsencrypt/letsencrypt /opt/certbot 
+pip install -e /opt/certbot/acme -e /opt/certbot 
+ 
 openssl req -x509 -newkey rsa:4096 \
 -keyout /etc/ssl/private/selfsigned.key.pem \
 -out /etc/ssl/certs/selfsigned.cert.pem \
 -days 1065 -nodes \
 -subj "/C=xx/ST=x/L=x/O=x/OU=x/CN=localhost"
 
-#ECDSA
+#rm -f /etc/ssl/certs/webserver.cert.pem
+#rm -f /etc/ssl/private/webserver.key.pem
+#ln -s /etc/ssl/certs/selfsigned.cert.pem /etc/ssl/certs/webserver.cert.pem
+#ln -s /etc/ssl/private/selfsigned.key.pem /etc/ssl/private/webserver.key.pem
 
-cargo install kt && kt generate ed25519 --out=ed25519.pk8
+### Config Files
+rm -f /etc/apache2/apache2.conf
+rm -f /etc/apache2/conf-enabled/security.conf
+rm -f /etc/apache2/sites-enabled/000-default.conf
+cp /config/linux/ubuntu/apache/apache2.conf /etc/apache2/
+cp /config/linux/ubuntu/apache/openemr.conf /etc/apache2/sites-enabled
+cp /config/linux/ubuntu/apache/security.conf /etc/apache2/conf-enabled
 
-
-openssl ecparam -name prime256v1 -genkey -noout -out key.pem
-openssl ec -in key.pem -pubout -out public.pem
-rm -f /etc/ssl/certs/webserver.cert.pem
-rm -f /etc/ssl/private/webserver.key.pem
-ln -s /etc/ssl/certs/selfsigned.cert.pem /etc/ssl/certs/webserver.cert.pem
-ln -s /etc/ssl/private/selfsigned.key.pem /etc/ssl/private/webserver.key.pem
+### Load Mods...
+ln -s /etc/apache2/mods-available/socache_smcb.load /etc/apache2/mods-avaibled/socache_smcb.load 
+ln -s /etc/apache2/mods-available/ssl.conf /etc/apache2/mods-enabled/ssl.conf
+ln -s ssl.load /etc/apache2/mods-available/ssl.load /etc/apache2/mods-enabled/ssl.load
+ln -s /etc/apache2/mods-available/rewrite.conf /etc/apache2/mods-enabled/rewrite.conf
 
 ### More File Permissions
 echo "Default file permissions and ownership set, allowing writing to specific directories"

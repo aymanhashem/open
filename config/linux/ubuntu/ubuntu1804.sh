@@ -1,18 +1,10 @@
+sudo add-apt-repository ppa:ondrej/php
 apt-get update
 apt-get upgrade -y
-apt-get install php7.2 php7.2-bcmath php7.2-bz2 php7.2-cgi php7.2-cli php7.2-common php7.2-curl php7.2-dba php7.2-enchant \
-php7.2-fpm php7.2-gd php7.2-gmp php7.2-imap php7.2-interbase php7.2-intl php7.2-json php7.2-ldap php7.2-mbstring \
-php7.2-mysql php7.2-odbc php7.2-opcache php7.2-pgsql php7.2-phpdbg php7.2-pspell php7.2-readline \ 
-php7.2-recode php7.2-snmp php7.2-soap php7.2-sqlite3 php7.2-tidy php7.2-xml php7.2-xsl php7.2-zip \ 
-php-redis php-igbinary php7.2-mysql perl tar curl nodejs npm mysql-client python python-pip \ 
-imagemagick libapache2-mod-php7.2 git composer vim -y
-
-#if ! [ -x "$(command -v sudo)" ]
-    #then 
-      apt-get install php7.2 php7.2-bcmath php7.2-bz2 php7.2-cgi php7.2-cli php7.2-common php7.2-curl php7.2-dba php7.2-enchant php7.2-fpm php7.2-gd php7.2-gmp php7.2-imap php7.2-interbase php7.2-intl php7.2-json php7.2-ldap php7.2-mbstring php7.2-mysql php7.2-odbc php7.2-opcache php7.2-pgsql php7.2-phpdbg php7.2-pspell php7.2-readline php7.2-recode php7.2-snmp php7.2-soap php7.2-sqlite3 php7.2-tidy php7.2-xml php7.2-xsl php7.2-zip php-redis php-igbinary php7.2-mysql perl tar curl nodejs npm mysql-client python python-pip imagemagick libapache2-mod-php7.2 git composer vim -y
-#else	    
-  #echo "hello"    	    
-#fi
+apt-get install apt-transport-https -y
+apt-get install aptitude -y
+aptitude install npm -y
+apt-get install php7.2 php7.2-bcmath libeapache2-mod-evasive a2enmod php7.2-bz2 php7.2-cgi php7.2-cli php7.2-common php7.2-curl php7.2-dba php7.2-enchant php7.2-fpm php7.2-gd php7.2-gmp php7.2-imap php7.2-interbase php7.2-intl php7.2-json php7.2-ldap php7.2-mbstring php7.2-mysql php7.2-odbc php7.2-opcache php7.2-pgsql php7.2-phpdbg php7.2-pspell php7.2-readline php7.2-recode php7.2-snmp php7.2-soap php7.2-sqlite3 php7.2-tidy php7.2-xml php7.2-xsl php7.2-zip php-redis php-igbinary php7.2-mysql perl tar curl nodejs mysql-client python python-pip imagemagick libapache2-mod-php7.2 git composer vim -y
 
 git clone https://github.com/openemr/openemr.git --depth 1 
 rm -rf openemr/.git
@@ -36,8 +28,8 @@ chown -R www-data openemr/
 mv openemr /var/www/ 
 
 ### SSL
-git clone https://github.com/letsencrypt/letsencrypt /opt/certbot 
-pip install -e /opt/certbot/acme -e /opt/certbot 
+#git clone https://github.com/letsencrypt/letsencrypt /opt/certbot 
+#pip install -e /opt/certbot/acme -e /opt/certbot 
  
 openssl req -x509 -newkey rsa:4096 \
 -keyout /etc/ssl/private/selfsigned.key.pem \
@@ -60,10 +52,11 @@ cp /config/linux/ubuntu/apache/openemr.conf /etc/apache2/sites-enabled
 cp /config/linux/ubuntu/apache/security.conf /etc/apache2/conf-enabled
 
 ### Load Mods...
-ln -s /etc/apache2/mods-available/socache_smcb.load /etc/apache2/mods-avaibled/socache_smcb.load 
-ln -s /etc/apache2/mods-available/ssl.conf /etc/apache2/mods-enabled/ssl.conf
-ln -s ssl.load /etc/apache2/mods-available/ssl.load /etc/apache2/mods-enabled/ssl.load
-ln -s /etc/apache2/mods-available/rewrite.conf /etc/apache2/mods-enabled/rewrite.conf
+#ln -s /etc/apache2/mods-available/socache_smcb.load /etc/apache2/mods-avaibled/socache_smcb.load 
+#ln -s /etc/apache2/mods-available/ssl.conf /etc/apache2/mods-enabled/ssl.conf
+#ln -s ssl.load /etc/apache2/mods-available/ssl.load /etc/apache2/mods-enabled/ssl.load
+#ln -s /etc/apache2/mods-available/rewrite.conf /etc/apache2/mods-enabled/rewrite.conf
+a2enmod rewrite ssl socache_smcb evasive headers
 
 ### More File Permissions
 echo "Default file permissions and ownership set, allowing writing to specific directories"

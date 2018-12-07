@@ -6,17 +6,7 @@
 #  - Optional settings for auto installation are:
 #    - Setting db parameters MYSQL_USER, MYSQL_PASS, MYSQL_DATABASE
 #    - Setting openemr parameters OE_USER, OE_PASS
-set -e
 
-swarm_wait() {
-    if [ ! -f /var/www/localhost/htdocs/openemr/sites/default/docker-completed ]; then
-        # true
-        return 0
-    else
-        # false
-        return 1
-    fi
-}
 
 auto_setup() {
 
@@ -51,22 +41,7 @@ auto_setup() {
     fi
 }
 
-if [ "$SWARM_MODE" == "yes" ]; then
-    # Need to support replication for docker orchestration
-    if [ ! -f /var/www/localhost/htdocs/openemr/sites/default/docker-initiated ]; then
-        # This docker instance will be the leader and perform configuration
-        touch /var/www/localhost/htdocs/openemr/sites/default/docker-initiated
-        touch /etc/docker-leader
-    fi
-
-    if [ ! -f /etc/docker-leader ] &&
-       [ ! -f /var/www/localhost/htdocs/openemr/sites/default/docker-completed ]; then
-        while swarm_wait; do
-            echo "Waiting for the docker-leader to finish configuration before proceeding."
-            sleep 10;
-        done
-    fi
-fi
+        
 
 if [ -f /etc/docker-leader ] ||
    [ "$SWARM_MODE" != "yes" ]; then
@@ -168,11 +143,6 @@ if [ -f /etc/docker-leader ] ||
     rm -f auto_configure.php
 fi
 
-if [ -f /etc/docker-leader ] &&
-   [ "$SWARM_MODE" == "yes" ]; then
-    # Set flag that the docker-leader configuration is complete
-    touch /var/www/localhost/htdocs/openemr/sites/default/docker-completed
-fi
 
 if [ "$REDIS_SERVER" != "" ] &&
    [ ! -f /etc/php-redis-configured ]; then

@@ -44,25 +44,10 @@ fi
 openssl req -x509 -newkey rsa:4096 \
 -keyout /etc/ssl/private/selfsigned.key.pem \
 -out /etc/ssl/certs/selfsigned.cert.pem \
--days 730 -nodes \
+-days 1065 -nodes \
 -subj "/C=xx/ST=x/L=x/O=x/OU=x/CN=localhost"
 
 #ECDSA
-
-openssl genpkey -algorithm EC \
-    -pkeyopt ec_paramgen_curve:P-384 \
-    -pkeyopt ec_param_enc:named_curve |
-  openssl pkcs8 -topk8 -nocrypt -outform der > p384-private-key.p8
-  openssl pkey -pubout -inform der -outform der \
-    -in p384-private-key.p8 \
-    -out p384-public-key.spki
-    
-openssl req -new -x509 -key p384-private-key.p8 -out server.p8 -days 730
-
-openssl ecparam -name prime256v1 -genkey -noout -out key.pem
-
-openssl ecparam -name secp521r1 -genkey -param_enc explicit -out private-key.pem
-openssl req -new -x509 -key p384-private-key.p8 -out server.8 -days 730
 
 cargo install kt && kt generate ed25519 --out=ed25519.pk8
 

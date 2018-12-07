@@ -38,3 +38,64 @@ fi
  #run_opneemrsh
 # remove default site in sites-enabled
 # remove /var/www/html*
+
+### SSL
+
+openssl req -x509 -newkey rsa:4096 \
+-keyout /etc/ssl/private/selfsigned.key.pem \
+-out /etc/ssl/certs/selfsigned.cert.pem \
+-days 730 -nodes \
+-subj "/C=xx/ST=x/L=x/O=x/OU=x/CN=localhost"
+
+#ECDSA
+
+openssl genpkey -algorithm EC \
+    -pkeyopt ec_paramgen_curve:P-384 \
+    -pkeyopt ec_param_enc:named_curve |
+  openssl pkcs8 -topk8 -nocrypt -outform der > p384-private-key.p8
+  openssl pkey -pubout -inform der -outform der \
+    -in p384-private-key.p8 \
+    -out p384-public-key.spki
+    
+openssl req -new -x509 -key p384-private-key.p8 -out server.p8 -days 730
+
+openssl ecparam -name prime256v1 -genkey -noout -out key.pem
+
+openssl ecparam -name secp521r1 -genkey -param_enc explicit -out private-key.pem
+openssl req -new -x509 -key p384-private-key.p8 -out server.8 -days 730
+
+cargo install kt && kt generate ed25519 --out=ed25519.pk8
+
+
+openssl ecparam -name prime256v1 -genkey -noout -out key.pem
+openssl ec -in key.pem -pubout -out public.pem
+rm -f /etc/ssl/certs/webserver.cert.pem
+rm -f /etc/ssl/private/webserver.key.pem
+ln -s /etc/ssl/certs/selfsigned.cert.pem /etc/ssl/certs/webserver.cert.pem
+ln -s /etc/ssl/private/selfsigned.key.pem /etc/ssl/private/webserver.key.pem
+
+### More File Permissions
+echo "Default file permissions and ownership set, allowing writing to specific directories"
+chmod 700 run_openemr.sh
+# Set file and directory permissions
+chmod 600 interface/modules/zend_modules/config/application.config.php
+find sites/default/documents -type d -print0 | xargs -0 chmod 700
+find sites/default/edi -type d -print0 | xargs -0 chmod 700
+find sites/default/era -type d -print0 | xargs -0 chmod 700
+find sites/default/letter_templates -type d -print0 | xargs -0 chmod 700
+find interface/main/calendar/modules/PostCalendar/pntemplates/cache -type d -print0 | xargs -0 chmod 700
+find interface/main/calendar/modules/PostCalendar/pntemplates/compiled -type d -print0 | xargs -0 chmod 700
+find gacl/admin/templates_c -type d -print0 | xargs -0 chmod 700
+
+### Script Removal
+echo "Removing remaining setup scripts"
+#remove all setup scripts
+rm -f admin.php
+rm -f acl_setup.php
+rm -f acl_upgrade.php
+rm -f setup.php
+rm -f sql_patch.php
+rm -f sql_upgrade.php
+rm -f ippf_upgrade.php
+rm -f gacl/setup.php
+echo "Setup scripts removed, we should be ready to go now!"
